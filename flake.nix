@@ -13,7 +13,7 @@
     };
   in {
     packages.${system}.default =
-      pkgs.runCommand "resume" { buildInputs = [ pkgs.nodejs ]; } ''
+      pkgs.runCommand "resume" { buildInputs = [ pkgs.nodejs pkgs.chromium ]; } ''
         # Copy theme directory
         cp -r ${./theme} theme
         chmod -R u+w theme
@@ -30,9 +30,13 @@
           fs.writeFileSync('index.html', html);
         "
 
+        cp ${./me.jpg} me.jpg
+        export HOME=$PWD
+        chromium --headless --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=resume.pdf file://$PWD/index.html
+
         mkdir -p $out
-        cp index.html $out/
-        cp ${./me.jpg} $out/me.jpg
+        cp index.html resume.pdf $out/
+        cp me.jpg $out/me.jpg
       '';
   };
 }
