@@ -11,9 +11,12 @@
       url = "https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.8/handlebars.min.js";
       hash = "sha256-DlQW8UXnvxbFhQQ1bHMv5+mWcfRpYZTFsUCiUtsC8K8=";
     };
+
+    fonts = [ pkgs.noto-fonts pkgs.noto-fonts-color-emoji ];
+    fontconfig = pkgs.makeFontsConf { fontDirectories = fonts; };
   in {
     packages.${system}.default =
-      pkgs.runCommand "resume" { buildInputs = [ pkgs.nodejs pkgs.chromium ]; } ''
+      pkgs.runCommand "resume" { buildInputs = [ pkgs.nodejs pkgs.chromium pkgs.fontconfig ] ++ fonts; } ''
         # Copy theme directory
         cp -r ${./theme} theme
         chmod -R u+w theme
@@ -32,6 +35,7 @@
 
         cp ${./me.jpg} me.jpg
         export HOME=$PWD
+        export FONTCONFIG_FILE=${fontconfig}
         chromium --headless --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=resume.pdf file://$PWD/index.html
 
         mkdir -p $out
